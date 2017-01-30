@@ -21,8 +21,8 @@ anything else : stop
 CTRL-C to quit
 """
 
-SPEED_DEFAULT = 0.5
-TURN_DEFAULT = 1.0
+SPEED_DEFAULT = 0.08
+TURN_DEFAULT = 0.3
 
 moveBindings = {
  		'w':(1,0,0,0),
