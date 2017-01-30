@@ -11,10 +11,10 @@ Moving around:
    q    w    e
    a    s    d
 
-anything else : stop
++/- : increase/decrease max speeds by 10%
 
-q/z : increase/decrease max speeds by 10%
+stop and reset velocities : space
+anything else : stop
 
 CTRL-C to quit
 ```
-

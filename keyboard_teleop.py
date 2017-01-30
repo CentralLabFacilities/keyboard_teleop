@@ -13,41 +13,29 @@ Moving around:
    q    w    e
    a    s    d
 
-anything else : stop
-
 +/- : increase/decrease max speeds by 10%
+
+stop and reset velocities : space
+anything else : stop
 
 CTRL-C to quit
 """
 
+SPEED_DEFAULT = 0.5
+TURN_DEFAULT = 1.0
+
 moveBindings = {
-		'i':(1,0,0,0),
-		'o':(1,0,0,-1),
-		'j':(0,0,0,1),
-		'l':(0,0,0,-1),
-		'u':(1,0,0,1),
-		',':(-1,0,0,0),
-		'.':(-1,0,0,1),
-		'm':(-1,0,0,-1),
-		'O':(1,-1,0,0),
-		'I':(1,0,0,0),
-		'J':(0,1,0,0),
-		'L':(0,-1,0,0),
-		'U':(1,1,0,0),
-		'<':(-1,0,0,0),
-		'>':(-1,-1,0,0),
-		'M':(-1,1,0,0),
-		't':(0,0,1,0),
-		'b':(0,0,-1,0),
+ 		'w':(1,0,0,0),
+                's':(-1,0,0,0),
+		'q':(0,0,0,1),
+		'e':(0,0,0,-1),
+		'a':(0,1,0,0),
+		'd':(0,-1,0,0),
 	       }
 
 speedBindings={
-		'q':(1.1,1.1),
-		'z':(.9,.9),
-		'w':(1.1,1),
-		'x':(.9,1),
-		'e':(1,1.1),
-		'c':(1,.9),
+		'+':(1.1,1.1),
+		'-':(.9,.9),
 	      }
 
 def getKey():
@@ -63,12 +51,12 @@ def vels(speed,turn):
 
 if __name__=="__main__":
     	settings = termios.tcgetattr(sys.stdin)
-	
+
 	pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
 	rospy.init_node('keyboard_teleop')
 
-	speed = rospy.get_param("~speed", 0.5)
-	turn = rospy.get_param("~turn", 1.0)
+	speed = rospy.get_param("~speed", SPEED_DEFAULT)
+	turn = rospy.get_param("~turn", TURN_DEFAULT)
 	x = 0
 	y = 0
 	z = 0
@@ -93,11 +81,27 @@ if __name__=="__main__":
 				if (status == 14):
 					print msg
 				status = (status + 1) % 15
+	                elif key == ' ':
+				print "resetting ..."
+
+                		x = 0
+                		y = 0
+                		z = 0
+                		th = 0
+
+                		speed = SPEED_DEFAULT
+                		turn = TURN_DEFAULT
+
+                		print vels(speed,turn)
+				if (status == 14):
+					print msg
+				status = (status + 1) % 15
 			else:
 				x = 0
 				y = 0
 				z = 0
 				th = 0
+
 				if (key == '\x03'):
 					break
 
@@ -116,5 +120,3 @@ if __name__=="__main__":
 		pub.publish(twist)
 
     		termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
-
-
