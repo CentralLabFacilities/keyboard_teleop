@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('keyboard_teleop')
+import roslib;
+
+roslib.load_manifest('keyboard_teleop')
 import rospy
 
 from geometry_msgs.msg import Twist
@@ -15,7 +17,8 @@ Moving around:
 
 +/- : increase/decrease max speeds by 10%
 
-stop and reset velocities : space
+stop : space
+stop and clear velocities : c
 anything else : stop
 
 CTRL-C to quit
@@ -25,18 +28,19 @@ SPEED_DEFAULT = 0.08
 TURN_DEFAULT = 0.3
 
 moveBindings = {
- 		'w':(1,0,0,0),
-                's':(-1,0,0,0),
-		'q':(0,0,0,1),
-		'e':(0,0,0,-1),
-		'a':(0,1,0,0),
-		'd':(0,-1,0,0),
-	       }
+	'w': (1, 0, 0, 0),
+	's': (-1, 0, 0, 0),
+	'q': (0, 0, 0, 1),
+	'e': (0, 0, 0, -1),
+	'a': (0, 1, 0, 0),
+	'd': (0, -1, 0, 0),
+}
 
-speedBindings={
-		'+':(1.1,1.1),
-		'-':(.9,.9),
-	      }
+speedBindings = {
+	'+': (1.1, 1.1),
+	'-': (.9, .9),
+}
+
 
 def getKey():
 	tty.setraw(sys.stdin.fileno())
@@ -46,13 +50,14 @@ def getKey():
 	return key
 
 
-def vels(speed,turn):
-	return "currently:\tspeed %s\tturn %s " % (speed,turn)
+def vels(speed, turn):
+	return "currently:\tspeed %s\tturn %s " % (speed, turn)
 
-if __name__=="__main__":
-    	settings = termios.tcgetattr(sys.stdin)
 
-	pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+if __name__ == "__main__":
+	settings = termios.tcgetattr(sys.stdin)
+
+	pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 	rospy.init_node('keyboard_teleop')
 
 	speed = rospy.get_param("~speed", SPEED_DEFAULT)
@@ -65,8 +70,8 @@ if __name__=="__main__":
 
 	try:
 		print msg
-		print vels(speed,turn)
-		while(1):
+		print vels(speed, turn)
+		while (1):
 			key = getKey()
 			if key in moveBindings.keys():
 				x = moveBindings[key][0]
@@ -77,22 +82,36 @@ if __name__=="__main__":
 				speed = speed * speedBindings[key][0]
 				turn = turn * speedBindings[key][1]
 
-				print vels(speed,turn)
+				print vels(speed, turn)
 				if (status == 14):
 					print msg
 				status = (status + 1) % 15
-	                elif key == ' ':
+
+			elif key == ' ':
+				print "stopping ..."
+
+				x = 0
+				y = 0
+				z = 0
+				th = 0
+
+				print vels(speed, turn)
+				if (status == 14):
+					print msg
+				status = (status + 1) % 15
+
+			elif key == 'c':
 				print "resetting ..."
 
-                		x = 0
-                		y = 0
-                		z = 0
-                		th = 0
+				x = 0
+				y = 0
+				z = 0
+				th = 0
 
-                		speed = SPEED_DEFAULT
-                		turn = TURN_DEFAULT
+				speed = SPEED_DEFAULT
+				turn = TURN_DEFAULT
 
-                		print vels(speed,turn)
+				print vels(speed, turn)
 				if (status == 14):
 					print msg
 				status = (status + 1) % 15
@@ -105,9 +124,15 @@ if __name__=="__main__":
 				if (key == '\x03'):
 					break
 
+
+
 			twist = Twist()
-			twist.linear.x = x*speed; twist.linear.y = y*speed; twist.linear.z = z*speed;
-			twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = th*turn
+			twist.linear.x = x * speed;
+			twist.linear.y = y * speed;
+			twist.linear.z = z * speed;
+			twist.angular.x = 0;
+			twist.angular.y = 0;
+			twist.angular.z = th * turn
 			pub.publish(twist)
 
 	except:
@@ -115,8 +140,12 @@ if __name__=="__main__":
 
 	finally:
 		twist = Twist()
-		twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
-		twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
+		twist.linear.x = 0;
+		twist.linear.y = 0;
+		twist.linear.z = 0
+		twist.angular.x = 0;
+		twist.angular.y = 0;
+		twist.angular.z = 0
 		pub.publish(twist)
 
-    		termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+		termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
