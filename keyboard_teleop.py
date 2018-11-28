@@ -9,7 +9,7 @@ from geometry_msgs.msg import Twist
 import sys, select, termios, tty
 
 msg = """
-Reading from the keyboard  and Publishing to Twist!
+Reading from the keyboard  and Publishing to Topic!
 ---------------------------
 Moving around:
    q    w    e
@@ -57,11 +57,15 @@ def vels(speed, turn):
 if __name__ == "__main__":
 	settings = termios.tcgetattr(sys.stdin)
 
-	pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 	rospy.init_node('keyboard_teleop')
 
+        topic = rospy.get_param("~tpc", 'cmd_vel')
+	pub = rospy.Publisher(topic, Twist, queue_size=1)
 	speed = rospy.get_param("~speed", SPEED_DEFAULT)
 	turn = rospy.get_param("~turn", TURN_DEFAULT)
+        print("Topic: ", topic)
+        print("Speed: ", speed)
+        print("turn: ", turn)
 	x = 0
 	y = 0
 	z = 0
