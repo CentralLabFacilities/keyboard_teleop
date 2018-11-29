@@ -60,6 +60,10 @@ if __name__ == "__main__":
 	rospy.init_node('keyboard_teleop')
 
         topic = rospy.get_param("~topic", 'cmd_vel')
+
+        # Reset rospy param for next start
+        rospy.set_param("~topic", "cmd_vel")
+
 	pub = rospy.Publisher(topic, Twist, queue_size=1)
 	speed = rospy.get_param("~speed", SPEED_DEFAULT)
 	turn = rospy.get_param("~turn", TURN_DEFAULT)
