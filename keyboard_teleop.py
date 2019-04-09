@@ -57,7 +57,7 @@ def vels(speed, turn):
 if __name__ == "__main__":
 	settings = termios.tcgetattr(sys.stdin)
 
-	rospy.init_node('keyboard_teleop')
+	rospy.init_node('keyboard_teleop', anonymous=True)
 
         topic = rospy.get_param("~topic", 'cmd_vel')
 
